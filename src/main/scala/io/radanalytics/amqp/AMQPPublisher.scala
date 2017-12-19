@@ -1,4 +1,4 @@
-package com.redhat.iot.spark
+package io.radanalytics.amqp.publisher 
 
 import java.lang.Long
 
@@ -8,9 +8,10 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue
 import org.apache.qpid.proton.message.Message
 
 import scala.util.Random
+import scala.io.Source
 
 /**
-  * Sample application which publishes temperature values to an AMQP node
+  * Sample application which publishes records to an AMQP node
   */
 object AMQPPublisher {
 
@@ -19,11 +20,12 @@ object AMQPPublisher {
   private var username: String = "daikon"
   private var password: String = "daikon"
   private var address: String = "salesq"
+  private var datafile: String = "LiquorNames.txt"
 
   def main(args: Array[String]): Unit = {
 
-    if (args.length < 5) {
-      System.err.println("Usage: AMQPPublisher <hostname> <port> <username> <password> <queue>")
+    if (args.length < 6) {
+      System.err.println("Usage: AMQPPublisher <hostname> <port> <username> <password> <queue> <datafilename>")
       System.exit(1)
     }
 
@@ -32,6 +34,7 @@ object AMQPPublisher {
     username = args(2)
     password = args(3)
     address = args(4)
+    datafile = args(5)
     val vertx: Vertx = Vertx.vertx()
 
     val client:ProtonClient = ProtonClient.create(vertx)
@@ -47,16 +50,19 @@ object AMQPPublisher {
           sender.open()
 
           val random = new Random()
-
+          val fileiter = Source.fromFile(datafile)
+          val buffer = fileiter.getLines()
+          buffer.drop(1)
+          val total = Source.fromFile(datafile).getLines.size
           vertx.setPeriodic(1000, new Handler[Long] {
             override def handle(timer: Long): Unit = {
 
-              val temp: Int = 20 + random.nextInt(5)
-
+              val index: Int = random.nextInt(total)
               val message: Message = ProtonHelper.message()
-              message.setBody(new AmqpValue(temp.toString))
+              val record = if(buffer.hasNext) buffer.next() else fileiter.reset()
+              message.setBody(new AmqpValue(record)) 
 
-              println("Temperature = " + temp)
+              println("Record = " + record)
               sender.send(message, new Handler[ProtonDelivery] {
                 override def handle(delivery: ProtonDelivery): Unit = {
 
