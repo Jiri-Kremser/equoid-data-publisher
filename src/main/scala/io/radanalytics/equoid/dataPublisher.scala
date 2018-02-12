@@ -71,6 +71,8 @@ object dataPublisher {
             }
           })
 
+        } else {
+          println("Async connect failed")
         }
       }
     })
