@@ -20,12 +20,12 @@ object dataPublisher {
   private var username: String = "daikon"
   private var password: String = "daikon"
   private var address: String = "salesq"
-  private var datafile: String = "LiquorNames.txt"
+  private var dataURL: String = "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt"
 
   def main(args: Array[String]): Unit = {
 
     if (args.length < 6) {
-      System.err.println("Usage: dataPublisher <hostname> <port> <username> <password> <queue> <datafilename>")
+      System.err.println("Usage: dataPublisher <hostname> <port> <username> <password> <queue> <data URL>")
       System.exit(1)
     }
 
@@ -34,7 +34,7 @@ object dataPublisher {
     username = args(2)
     password = args(3)
     address = args(4)
-    datafile = args(5)
+    dataURL = args(5)
     val vertx: Vertx = Vertx.vertx()
 
     val client:ProtonClient = ProtonClient.create(vertx)
@@ -50,10 +50,10 @@ object dataPublisher {
           sender.open()
 
           val random = new Random()
-          val fileiter = Source.fromFile(datafile)
+          val fileiter = Source.fromURL(dataURL)
           val buffer = fileiter.getLines()
           buffer.drop(1)
-          val total = Source.fromFile(datafile).getLines.size
+          val total = Source.fromURL(dataURL).getLines.size
           vertx.setPeriodic(1000, new Handler[Long] {
             override def handle(timer: Long): Unit = {
 
@@ -63,6 +63,7 @@ object dataPublisher {
               message.setBody(new AmqpValue(record)) 
 
               println("Record = " + record)
+              println("Message = " + message)
               sender.send(message, new Handler[ProtonDelivery] {
                 override def handle(delivery: ProtonDelivery): Unit = {
 
