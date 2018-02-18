@@ -38,8 +38,9 @@ object dataPublisher {
     val vertx: Vertx = Vertx.vertx()
 
     val client:ProtonClient = ProtonClient.create(vertx)
-
-    client.connect(host, port, username, password, new Handler[AsyncResult[ProtonConnection]] {
+    val opts:ProtonClientOptions = new ProtonClientOptions()
+    opts.setReconnectAttempts(13)
+    client.connect(opts, host, port, username, password, new Handler[AsyncResult[ProtonConnection]] {
       override def handle(ar: AsyncResult[ProtonConnection]): Unit = {
         if (ar.succeeded()) {
 
@@ -73,11 +74,9 @@ object dataPublisher {
           })
 
         } else {
-          println("Async connect failed")
+          println("Async connect attempt failed")
         }
       }
     })
-
-    System.in.read()
   }
 }
