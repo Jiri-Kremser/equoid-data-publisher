@@ -7,6 +7,7 @@ import io.vertx.proton._
 import org.apache.qpid.proton.amqp.messaging.AmqpValue
 import org.apache.qpid.proton.message.Message
 
+import scala.util.Properties
 import scala.util.Random
 import scala.io.Source
 
@@ -15,26 +16,19 @@ import scala.io.Source
   */
 object dataPublisher {
 
-  private var host: String = "broker-amq-amqp"
-  private var port: Int = 5672
-  private var username: String = "daikon"
-  private var password: String = "daikon"
-  private var address: String = "salesq"
-  private var dataURL: String = "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt"
+  def getProp(camelCaseName: String, defaultValue: String): String = {
+    val snakeCaseName = camelCaseName.replaceAll("(.)(\\p{Upper})", "$1_$2").toUpperCase()
+    Properties.envOrElse(snakeCaseName, Properties.scalaPropOrElse(snakeCaseName, defaultValue))
+  }
 
   def main(args: Array[String]): Unit = {
 
-    if (args.length < 6) {
-      System.err.println("Usage: dataPublisher <hostname> <port> <username> <password> <queue> <data URL>")
-      System.exit(1)
-    }
-
-    host = args(0)
-    port = args(1).toInt
-    username = args(2)
-    password = args(3)
-    address = args(4)
-    dataURL = args(5)
+    val host = getProp("amqpHost", "broker-amq-amqp")
+    val port = getProp("amqpPort", "5672").toInt
+    val username = getProp("amqpUsername", "daikon")
+    val password = getProp("amqpPassword", "daikon")
+    val address = getProp("queueName", "salesq")
+    val dataURL = getProp("dataUrl", "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt")
     val vertx: Vertx = Vertx.vertx()
 
     val client:ProtonClient = ProtonClient.create(vertx)
@@ -74,7 +68,9 @@ object dataPublisher {
           })
 
         } else {
-          println("Async connect attempt failed")
+          println(s"Async connect attempt to $host:$port failed")
+          println(s"Cause: ${ar.cause().getMessage}")
+          ar.cause()printStackTrace()
         }
       }
     })
