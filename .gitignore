@@ -1,0 +1,9 @@
+#build tools
+target/
+dependency-reduced-pom.xml
+project/build.properties
+build.sbt
+
+#idea
+.idea
+*.iml
