@@ -14,7 +14,7 @@ import scala.io.Source
 /**
   * Sample application which publishes records to an AMQP node
   */
-object dataPublisher {
+object DataPublisher {
 
   def getProp(camelCaseName: String, defaultValue: String): String = {
     val snakeCaseName = camelCaseName.replaceAll("(.)(\\p{Upper})", "$1_$2").toUpperCase()
@@ -33,7 +33,9 @@ object dataPublisher {
 
     val client:ProtonClient = ProtonClient.create(vertx)
     val opts:ProtonClientOptions = new ProtonClientOptions()
-    opts.setReconnectAttempts(13)
+    opts.setReconnectAttempts(20)
+        .setTrustAll(true)
+        .setConnectTimeout(10000) // timeout = 10sec, reconnect interval is 1sec
     client.connect(opts, host, port, username, password, new Handler[AsyncResult[ProtonConnection]] {
       override def handle(ar: AsyncResult[ProtonConnection]): Unit = {
         if (ar.succeeded()) {
@@ -43,18 +45,15 @@ object dataPublisher {
 
           val sender: ProtonSender = connection.createSender(address)
           sender.open()
+          println(s"Connection to $host:$port has been successfully established")
 
-          val random = new Random()
-          val fileiter = Source.fromURL(dataURL)
-          val buffer = fileiter.getLines()
+          val fileIter = Source.fromURL(dataURL)
+          val buffer = fileIter.getLines()
           buffer.drop(1)
-          val total = Source.fromURL(dataURL).getLines.size
           vertx.setPeriodic(1000, new Handler[Long] {
             override def handle(timer: Long): Unit = {
-
-              val index: Int = random.nextInt(total)
               val message: Message = ProtonHelper.message()
-              val record = if(buffer.hasNext) buffer.next() else fileiter.reset()
+              val record = if(buffer.hasNext) buffer.next() else fileIter.reset()
               message.setBody(new AmqpValue(record)) 
 
               println("Record = " + record)
@@ -70,7 +69,7 @@ object dataPublisher {
         } else {
           println(s"Async connect attempt to $host:$port failed")
           println(s"Cause: ${ar.cause().getMessage}")
-          ar.cause()printStackTrace()
+          ar.cause().printStackTrace()
         }
       }
     })

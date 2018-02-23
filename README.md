@@ -1,11 +1,41 @@
+[![Build Status](https://travis-ci.org/EldritchJS/equoid-data-publisher.svg?branch=master)](https://travis-ci.org/EldritchJS/equoid-data-publisher)
+
 # equoid-data-publisher
 
-Build:
+## Build
 
 `mvn package`
 
-Run:
+## Run
 
-`java -cp ./target/equoid-data-publisher-1.0-SNAPSHOT.jar io.radanalytics.equoid.dataPublisher <AMQP Broker Address> <AMQP Port> <AMQP Username> <AMQP Password> <AMQP Queue> <Data file URL>`
+locally
 
+```bash
+AMQP_HOST=<AMQP Broker Address> \
+AMQP_PORT=<AMQP Port> \
+AMQP_USERNAME=<AMQP Username> \
+AMQP_PASSWORD=<AMQP Password> \
+QUEUE_NAME=<AMQP Queue> \
+DATA_URL=<Data file URL> \
+java -jar ./target/equoid-data-publisher-*.jar
+```
 
+or in POD:
+```bash
+oc new-app -l app=publisher redhat-openjdk18-openshift:1.2~https://github.com/Jiri-Kremser/equoid-data-publisher
+```
+
+in case you want to tweak some default parameters or debug the app, here is an example:
+
+```bash
+oc new-app redhat-openjdk18-openshift:1.2~https://github.com/Jiri-Kremser/equoid-data-publisher \
+  -l app=publisher \
+  -e AMQP_HOST=broker-amq-amqp \
+  -e AMQP_PORT=5672 \
+  -e AMQP_USERNAME=daikon \
+  -e AMQP_PASSWORD=daikon \
+  -e QUEUE_NAME=salesq \
+  -e DATA_URL=https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt \
+  -e JAVA_DEBUG=true \
+  -e JAVA_DEBUG_PORT=9009
+```
