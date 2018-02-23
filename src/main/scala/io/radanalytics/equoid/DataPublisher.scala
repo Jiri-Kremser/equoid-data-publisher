@@ -14,7 +14,7 @@ import scala.io.Source
 /**
   * Sample application which publishes records to an AMQP node
   */
-object dataPublisher {
+object DataPublisher {
 
   def getProp(camelCaseName: String, defaultValue: String): String = {
     val snakeCaseName = camelCaseName.replaceAll("(.)(\\p{Upper})", "$1_$2").toUpperCase()
@@ -33,7 +33,7 @@ object dataPublisher {
 
     val client:ProtonClient = ProtonClient.create(vertx)
     val opts:ProtonClientOptions = new ProtonClientOptions()
-    opts.setReconnectAttempts(1)
+    opts.setReconnectAttempts(20)
         .setTrustAll(true)
         .setConnectTimeout(10000) // timeout = 10sec, reconnect interval is 1sec
     client.connect(opts, host, port, username, password, new Handler[AsyncResult[ProtonConnection]] {
