@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/EldritchJS/equoid-data-publisher.svg?branch=master)](https://travis-ci.org/EldritchJS/equoid-data-publisher)
+
 # equoid-data-publisher
 
 ## Build
