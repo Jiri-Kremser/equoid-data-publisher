@@ -25,7 +25,7 @@ or in POD:
 oc new-app -l app=publisher redhat-openjdk18-openshift:1.2~https://github.com/Jiri-Kremser/equoid-data-publisher
 ```
 
-in case you want to tweak some default parameters or debug the app, here is an example:
+in case you want to tweak some default parameters or debug the app, here is a tweaked example:
 
 ```bash
 oc new-app redhat-openjdk18-openshift:1.2~https://github.com/Jiri-Kremser/equoid-data-publisher \
