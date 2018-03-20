@@ -51,4 +51,14 @@ class ZipfianPicker extends FlatSpec with Matchers {
     v2 should equal(v3)
   }
 
+  "it" should "be possible use the ZipfianPicker for a remote file" in {
+    val url = "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt"
+    val picker = ZipfianPicker[String](url)
+
+    val (first, second) = (picker.next, picker.next)
+
+    first should not be empty
+    second should not be empty
+  }
+
 }
