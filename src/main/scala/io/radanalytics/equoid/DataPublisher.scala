@@ -47,7 +47,7 @@ object DataPublisher {
           sender.open()
           println(s"Connection to $host:$port has been successfully established")
 
-          val zipfianIterator = ZipfianPicker(dataURL)
+          val zipfianIterator = ZipfianPicker[String](dataURL)
           vertx.setPeriodic(1000, new Handler[Long] {
             override def handle(timer: Long): Unit = {
               val message: Message = ProtonHelper.message()
