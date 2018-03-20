@@ -23,12 +23,23 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-proton</artifactId>
             <version>${vertx-proton.version}</version>
-    	</dependency>
+        </dependency>
         <dependency>
-	 <groupId>com.sparkjava</groupId>
-	    <artifactId>spark-core</artifactId>
-	 <version>2.5.5</version>
- 	</dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.11</artifactId>
+            <version>3.0.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +86,25 @@
 				    </transformer>
 			    </transformers>
 		    </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
