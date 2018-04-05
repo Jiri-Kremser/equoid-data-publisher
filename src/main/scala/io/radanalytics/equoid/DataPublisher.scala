@@ -17,19 +17,22 @@ import scala.io.{Codec, Source}
   */
 object DataPublisher {
 
-  def getProp(camelCaseName: String, defaultValue: String): String = {
-    val snakeCaseName = camelCaseName.replaceAll("(.)(\\p{Upper})", "$1_$2").toUpperCase()
-    Properties.envOrElse(snakeCaseName, Properties.scalaPropOrElse(snakeCaseName, defaultValue))
+  def getProp(snakeCaseName: String, defaultValue: String): String = {
+    // return the value of 'SNAKE_CASE_NAME' env variable,
+    // if ^ not defined, return the value of 'snakeCaseName' JVM property
+    // if ^ not defined, return the defaultValue
+    val camelCase = "_(.)".r.replaceAllIn(snakeCaseName.toLowerCase, m => m.group(1).toUpperCase)
+    Properties.envOrElse(snakeCaseName, Properties.propOrElse(camelCase, defaultValue))
   }
 
   def main(args: Array[String]): Unit = {
 
-    val host = getProp("amqpHost", "broker-amq-amqp")
-    val port = getProp("amqpPort", "5672").toInt
-    val username = getProp("amqpUsername", "daikon")
-    val password = getProp("amqpPassword", "daikon")
-    val address = getProp("queueName", "salesq")
-    val dataURL = getProp("dataUrl", "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt")
+    val host = getProp("AMQP_HOST", "broker-amq-amqp")
+    val port = getProp("AMQP_PORT", "5672").toInt
+    val username = getProp("AMQP_USERNAME", "daikon")
+    val password = getProp("AMQP_PASSWORD", "daikon")
+    val address = getProp("QUEUE_NAME", "salesq")
+    val dataURL = getProp("DATA_URL", "https://raw.githubusercontent.com/EldritchJS/equoid-data-publisher/master/data/LiquorNames.txt")
     val vertx: Vertx = Vertx.vertx()
     val client:ProtonClient = ProtonClient.create(vertx)
     val opts:ProtonClientOptions = new ProtonClientOptions()
