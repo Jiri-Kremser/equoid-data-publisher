@@ -61,4 +61,21 @@ class ZipfianPicker extends FlatSpec with Matchers {
     second should not be empty
   }
 
+  "it" should "be possible to prepend a new frequent item" in {
+    val picker = ZipfianPicker[String]("file:///" + getClass.getResource("/strings.txt").getPath, seed)
+    val frequent = "frequent"
+    // put the "frequent" item on the first 5 places in the sequence
+    val newPicker = picker.prepend(frequent).prepend(frequent).prepend(frequent).prepend(frequent).prepend(frequent)
+
+    val sortedByFreq = ((for (elem <- newPicker) yield elem)
+      .toVector
+      .groupBy(identity)
+      .mapValues(_.size)
+      .toVector
+      .sortBy(-_._2))
+    val mostFrequent = sortedByFreq.head
+
+    mostFrequent._1 should equal(frequent)
+  }
+
 }
